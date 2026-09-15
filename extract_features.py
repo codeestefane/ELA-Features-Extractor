@@ -86,7 +86,7 @@ def extractor_features(X, y, dados):
 files_path = os.listdir("classif.svm")
 features_pflacco = []
 
-for x, i in enumerate(files_path[0:2]):
+for x, i in enumerate(files_path):
     arquivo_atual = i.replace(".csv", "")
 
     for qtd_amostras in amostras:
