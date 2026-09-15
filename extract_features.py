@@ -1,7 +1,10 @@
 import os
 import pandas as pd
 from pflacco.classical_ela_features import *
-import numpy as np
+from tqdm import tqdm
+
+amostras = [10, 20, 30, 40, 50, 100, 250, 500, 750, 1000, 2500, 5000, 10000, 15000, 20000, 30000]
+seeds = [3, 5, 7, 13, 27, 35, 42, 66, 72, 111]
 
 def extractor_features(X, y, dados):
     ela_meta_df = pd.DataFrame({'ela_meta.lin_simple.adj_r2': [], 'ela_meta.lin_simple.intercept': [], 'ela_meta.lin_simple.coef.min': [], 'ela_meta.lin_simple.coef.max': [], 'ela_meta.lin_simple.coef.max_by_min': [], 'ela_meta.lin_w_interact.adj_r2': [], 'ela_meta.quad_simple.adj_r2': [], 'ela_meta.quad_simple.cond': [], 'ela_meta.quad_w_interact.adj_r2': [], 'ela_meta.costs_runtime': []})
@@ -83,20 +86,23 @@ def extractor_features(X, y, dados):
 files_path = os.listdir("classif.svm")
 features_pflacco = []
 
-for i in files_path:
-    dados = pd.read_csv("classif.svm/" + i)
-    X = dados[['cost', 'gamma']]
-    y = dados['ber.test.mean']
-
+for x, i in enumerate(files_path[0:2]):
     arquivo_atual = i.replace(".csv", "")
 
-    print(f'Extraindo meta-features de {arquivo_atual}...')
-    features_pflacco.append(pd.concat([pd.DataFrame({"File": arquivo_atual}, index = [0]), extractor_features(X, y, dados)], axis = 1))
-    print("Extração concluída!\n")
+    for qtd_amostras in amostras:
+        for seed in tqdm(seeds, desc = f"{x} - {arquivo_atual} | Qtd. amostras = {qtd_amostras}"):
+            dados = pd.read_csv("classif.svm/" + i)
+            sample_size = min(qtd_amostras, len(dados))
+            dados_sample = dados.sample(n=sample_size, random_state=seed)
+
+            X = dados_sample[['cost', 'gamma']]
+            y = dados_sample['ber.test.mean']
+
+            features_pflacco.append(pd.concat([pd.DataFrame({"file": arquivo_atual}, index = [0]), pd.DataFrame({"amostras": qtd_amostras}, index = [0]), pd.DataFrame({"seed": seed}, index = [0]), extractor_features(X, y, dados_sample)], axis = 1))
+
+            if qtd_amostras == 30000:
+                break
 
 features_pflacco = pd.concat([df for df in features_pflacco], axis = 0, ignore_index = True)
-features_pflacco.to_csv("ela_features_pflacco.csv", index = False, encoding = 'utf-8')
 
-# sample_size = min(10000, len(X))
-# X_sample = X.sample(n=sample_size, random_state=42)
-# y_sample = y.loc[X_sample.index]
+features_pflacco.to_csv("ela_features_pflacco_amostrado.csv", index = False, encoding = 'utf-8')
