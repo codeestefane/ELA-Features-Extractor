@@ -84,9 +84,9 @@ def extractor_features(X, y, dados):
     return pd.concat([ela_meta_df, ela_distr_df, ela_cm_angle_df, ela_cm_conv_df, ela_cm_grad_df, ela_ic_df, ela_nbc_df, ela_limo_df, ela_pca_df, ela_disp_df], axis = 1)
 
 files_path = os.listdir("classif.svm")
-features_pflacco = []
 
 for x, i in enumerate(files_path):
+    features_pflacco = []
     arquivo_atual = i.replace(".csv", "")
 
     for qtd_amostras in amostras:
@@ -102,7 +102,8 @@ for x, i in enumerate(files_path):
 
             if qtd_amostras == 30000:
                 break
+            
+    features_pflacco = pd.concat([df for df in features_pflacco], axis = 0, ignore_index = True)
+    os.makedirs("metafeatures", exist_ok=True)
+    features_pflacco.to_csv("metafeatures/" + arquivo_atual + ".csv", index = False, encoding = 'utf-8')
 
-features_pflacco = pd.concat([df for df in features_pflacco], axis = 0, ignore_index = True)
-
-features_pflacco.to_csv("ela_features_pflacco_amostrado.csv", index = False, encoding = 'utf-8')
