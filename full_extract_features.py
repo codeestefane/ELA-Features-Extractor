@@ -4,6 +4,7 @@ from pflacco.classical_ela_features import *
 from tqdm import tqdm
 
 amostras = [10, 20, 30, 40, 50, 100, 250, 500, 750, 1000, 2500, 5000, 10000, 15000, 20000, 30000]
+
 seeds = [3, 5, 7, 13, 27, 35, 42, 66, 72, 111]
 
 def extractor_features(X, y, dados, parametros_x):
@@ -89,7 +90,7 @@ def extractor_features(X, y, dados, parametros_x):
 
 # pastas = ["classif.svm", "classif.rpart"] # descomente essa linha se quiser extrair meta-features dos experimentos de SVM e Decision Tree
 
-pastas = ["classif.rpart"]
+pastas = ["classif.rpart_final"]
 
 for j in pastas:
     files_path = os.listdir(j)
@@ -101,8 +102,8 @@ for j in pastas:
 
         for qtd_amostras in amostras:
             for seed in tqdm(seeds, desc = f"{x} - {arquivo_atual} | Qtd. amostras = {qtd_amostras}"):
-                if j == "classif.rpart":
-                    dados = pd.read_csv(j + "/" + i, header = None)
+                if j == "classif.rpart_final":
+                    dados = pd.read_csv(j + "/" + i)
                     dados.columns = ["h1", "h2", "h3", "h4", "h5", "h6", "BER"]
                 else:
                     dados = pd.read_csv(j + "/" + i)
